@@ -29,6 +29,15 @@ pipeline {
                     sh 'mvn test'
                 }
             }
+        }stage('SonarQube Analysis') {
+            steps {
+                // 'SonarQube-Server' must match the name in "Manage Jenkins > System"
+                withSonarQubeEnv('SonarQube-Server') {
+                    dir('app/sample-app') {
+                        sh 'mvn sonar:sonar'
+                    }
+                }
+            }
         }
     }
     
