@@ -48,7 +48,7 @@ pipeline {
             steps {
                 dir('app/sample-app') {
                     // Uses 'nexus-creds' from Jenkins Credentials (Username/Password)
-                    withCredentials([usernamePassword(credentialsId: 'nexus-creds', passwordVariable: 'NEXUS_PWD', usernameVariable: 'NEXUS_USER')]) {
+                    withCredentials([usernamePassword(credentialsId: 'nexus_token', passwordVariable: 'Admin@12345', usernameVariable: 'admin')]) {
                         sh 'mvn deploy -DskipTests'
                     }
                 }
