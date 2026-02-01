@@ -2,23 +2,22 @@ pipeline {
     agent any
 
     tools {
-        // This must match the name you gave Maven in "Global Tool Configuration"
-        maven "Maven3" 
+        // These must match your "Global Tool Configuration" names
+        maven "Maven3"
+        jdk "Java17"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Jenkins fetches the code from GitHub
                 checkout scm
             }
         }
 
         stage('Build & Package') {
             steps {
-                // Navigate to the app folder and create the .jar file
                 dir('app/sample-app') {
-                    sh 'mvn clean package'
+                    sh 'mvn clean package -DskipTests'
                 }
             }
         }
@@ -29,9 +28,11 @@ pipeline {
                     sh 'mvn test'
                 }
             }
-        }stage('SonarQube Analysis') {
+        }
+
+        stage('SonarQube Analysis') {
             steps {
-                // 'SonarQube-Server' must match the name in "Manage Jenkins > System"
+                // Ensure 'SonarQube-Server' matches your Jenkins System settings
                 withSonarQubeEnv('SonarQube-Server') {
                     dir('app/sample-app') {
                         sh 'mvn sonar:sonar'
@@ -39,11 +40,32 @@ pipeline {
                 }
             }
         }
+
+        stage('Docker Build & Push') {
+            steps {
+                dir('app/sample-app') {
+                    script {
+                        // 'dockerhub-creds' must be the ID of your credentials in Jenkins
+                        docker.withRegistry('', 'dockerhub-creds') {
+                            def customImage = docker.build("sreepathi0208/jenkins-project:${env.BUILD_ID}")
+                            customImage.push()
+                            customImage.push('latest')
+                        }
+                    }
+                }
+            }
+        }
     }
-    
+
     post {
         always {
             echo 'Build Process Completed.'
+        }
+        success {
+            echo 'Pipeline finished successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs for details.'
         }
     }
 }
