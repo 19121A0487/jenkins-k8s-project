@@ -60,7 +60,7 @@ pipeline {
                 dir('app/sample-app') {
                     script {
                         // Uses 'dockerhub-creds' (Docker Hub Username/Access Token)
-                        docker.withRegistry('', 'dockerhub-creds') {
+                        docker.withRegistry('', 'docker_token') {
                             // Builds and tags with the build number and 'latest'
                             def customImage = docker.build("sreepathi0208/jenkins-project:${env.BUILD_ID}")
                             customImage.push()
